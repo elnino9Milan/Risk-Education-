@@ -1,0 +1,163 @@
+---
+title: "Minority Risk"
+author: "Milan Chauhan"
+date: "2025-12-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#setting working directory
+setwd("C:/Users/mchauhan2/OneDrive - University of Nebraska-Lincoln/elliott/minority risk")
+getwd()
+
+```
+```{R}
+#libraries
+
+
+library(readxl)
+library(dplyr)
+```
+
+
+
+
+```{r}
+#file
+
+df <- read_excel("manrrs_simulation_postreview.xlsx", sheet = 2)
+
+str(df)
+
+
+```
+
+
+```{R}
+# Wilcoxon Signed rank test
+
+#reference: https://www.geeksforgeeks.org/r-language/wilcoxon-signed-rank-test-in-r-programming/
+
+#market price
+wilcox.test(df$after_market_price, df$before_market_price, paired = TRUE)
+
+```
+```{r}
+#total observations/participants/ N
+
+diff1 <- df$after_market_price - df$before_market_price
+sum(diff1 != 0, na.rm = TRUE)
+
+```
+
+
+
+```{R}
+# Wilcoxon Signed rank test
+#PRF
+wilcox.test(df$after_PRF, df$before_PRF, paired = TRUE)
+
+```
+
+```{r}
+#total observations/participants/ N
+
+diff2 <- df$after_PRF - df$before_PRF
+sum(diff2 != 0, na.rm = TRUE)
+
+```
+
+
+
+```{R}
+# Wilcoxon Signed rank test
+#market price
+wilcox.test(df$after_LRP, df$before_LRP, paired = TRUE)
+
+```
+
+
+```{r}
+#total observations/participants/ N
+
+diff3 <- df$after_LRP - df$before_LRP
+sum(diff3 != 0, na.rm = TRUE)
+
+```
+
+
+
+```{R}
+# Wilcoxon Signed rank test
+#market price
+wilcox.test(df$after_production_risk, df$before_production_risk, paired = TRUE)
+
+```
+
+
+
+
+```{r}
+#total observations/participants/ N
+
+diff4 <- df$after_production_risk - df$before_production_risk
+sum(diff4 != 0, na.rm = TRUE)
+
+```
+
+
+
+
+```{r}
+#comapring knowledge gain across risk management areas 
+
+
+# adding knowledge gain for each area
+df$gain_market <- df$after_market_price - df$before_market_price
+df$gain_PRF <- df$after_PRF - df$before_PRF
+df$gain_LRP <- df$after_LRP - df$before_LRP
+df$gain_production <- df$after_production_risk - df$before_production_risk
+
+
+```
+
+
+```{r}
+library(tidyr)
+library(dplyr)
+
+df_long <- df %>%
+  select(Participant, starts_with("gain_")) %>%
+  pivot_longer(
+    cols = starts_with("gain_"),
+    names_to = "area",
+    names_prefix = "gain_",
+    values_to = "gain"
+  )
+
+```
+
+
+```{R}
+#Kruskal-Wallis test
+
+#reference: https://www.geeksforgeeks.org/r-language/kruskal-wallis-test-in-r-programming/
+
+kruskal.test(gain ~ area, data = df_long)
+
+
+#result shows no statistically significant difference in knowledge gain median between the areas, therefore no post-hoc test is required.
+
+```
+
+
+
+
+
+
+
